@@ -91,7 +91,36 @@
     <div class="lang-list" id="learnList"></div>
   </main>
 
-  <!-- ========== SCREEN 3: CHAT WITH MAYA ========== -->
+  <!-- ========== SCREEN 3: LESSON MAP ========== -->
+  <main class="screen screen-map" id="map">
+    <header class="topbar">
+      <a class="brand" href="#" data-go="home" aria-label="Speakuru home">
+      <img src="assets/icon.webp" alt=""><span>Speak<em>uru</em></span>
+    </a>
+      <div class="stats">
+        <span class="stat" title="Streak">🔥 <b id="statStreak">0</b></span>
+        <span class="stat" title="XP">⭐ <b id="statXp">0</b></span>
+      </div>
+    </header>
+
+    <section class="map-hello">
+      <img class="map-maya" src="assets/maya-real.webp" alt="Maya">
+      <div>
+        <h2 id="mapHi">Hi! 👋</h2>
+        <p id="mapInfo"></p>
+      </div>
+    </section>
+
+    <div class="map-actions">
+      <button class="pill-btn" id="btnFree">💬 Free talk with Maya</button>
+      <button class="pill-btn toggle" id="btnTapOnly" aria-pressed="false">👆 Tap-only: <b>Off</b></button>
+    </div>
+
+    <nav class="level-tabs" id="levelTabs"></nav>
+    <div class="path" id="path"></div>
+  </main>
+
+  <!-- ========== SCREEN 4: CHAT / LESSON WITH MAYA ========== -->
   <main class="screen screen-chat" id="chat">
     <header class="topbar">
       <a class="brand brand-icon" href="#" data-go="home" aria-label="Speakuru home">
@@ -100,11 +129,17 @@
       <div class="who">
         <b>Maya</b>
         <small id="status">online</small>
+        <em id="chatTitle"></em>
       </div>
-      <button class="icon-btn" id="btnMute" aria-label="Mute Maya" aria-pressed="false">
-        <svg class="ic-on" viewBox="0 0 24 24" width="22" height="22"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        <svg class="ic-off" viewBox="0 0 24 24" width="22" height="22"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
+      <div class="top-right">
+        <button class="icon-btn" id="btnMute" aria-label="Mute Maya" aria-pressed="false">
+          <svg class="ic-on" viewBox="0 0 24 24" width="22" height="22"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg class="ic-off" viewBox="0 0 24 24" width="22" height="22"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="icon-btn" id="btnExit" aria-label="Back to lessons" hidden>
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        </button>
+      </div>
     </header>
 
     <div class="stage">
@@ -117,6 +152,7 @@
 
     <div class="messages" id="messages" aria-live="polite"></div>
 
+    <div class="choices" id="choices"></div>
     <form class="composer" id="composer" autocomplete="off">
       <button type="button" class="mic-lang" id="btnMicLang" aria-label="Mic language">ID</button>
       <input id="textIn" type="text" placeholder="Ketik di sini…" enterkeyhint="send">
@@ -128,6 +164,7 @@
       </button>
     </form>
   </main>
+  <div class="xp-pop" id="xpPop"></div>
   <div class="toast" id="toast"></div>
 
   <script src="app.js"></script>

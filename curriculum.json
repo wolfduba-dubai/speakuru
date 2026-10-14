@@ -1,0 +1,49 @@
+{
+  "levels": [
+    {
+      "id": "beginner", "title": "Beginner", "titleId": "Pemula", "cefr": "A1", "color": "#2BC48A",
+      "lessons": [
+        { "id": "b1", "emoji": "👋", "title": "Hello & introductions", "titleId": "Halo & perkenalan", "words": ["hello", "hi", "my name is", "nice to meet you", "how are you", "goodbye"] },
+        { "id": "b2", "emoji": "🔢", "title": "Numbers & age", "titleId": "Angka & umur", "words": ["one to ten", "twenty", "hundred", "how old are you", "years old"] },
+        { "id": "b3", "emoji": "👨‍👩‍👧", "title": "Family", "titleId": "Keluarga", "words": ["mother", "father", "brother", "sister", "son", "daughter", "married"] },
+        { "id": "b4", "emoji": "☕", "title": "Food & drinks", "titleId": "Makanan & minuman", "words": ["coffee", "tea", "water", "rice", "chicken", "I'd like", "please", "thank you"] },
+        { "id": "b5", "emoji": "🕐", "title": "Time & daily routine", "titleId": "Waktu & rutinitas", "words": ["wake up", "breakfast", "go to work", "o'clock", "morning", "night"] },
+        { "id": "b6", "emoji": "🏠", "title": "Home & places", "titleId": "Rumah & tempat", "words": ["house", "room", "kitchen", "market", "school", "office", "where is"] },
+        { "id": "b7", "emoji": "👕", "title": "Colors & clothes", "titleId": "Warna & pakaian", "words": ["red", "blue", "black", "white", "shirt", "shoes", "how much"] },
+        { "id": "b8", "emoji": "🌤️", "title": "Days & weather", "titleId": "Hari & cuaca", "words": ["Monday", "weekend", "today", "tomorrow", "hot", "rainy", "sunny"] },
+        { "id": "b9", "emoji": "😊", "title": "Feelings", "titleId": "Perasaan", "words": ["happy", "sad", "tired", "hungry", "angry", "I feel"] },
+        { "id": "b10", "emoji": "⚽", "title": "Likes & hobbies", "titleId": "Kesukaan & hobi", "words": ["I like", "I don't like", "football", "music", "movies", "reading"] }
+      ]
+    },
+    {
+      "id": "intermediate", "title": "Intermediate", "titleId": "Menengah", "cefr": "A2–B1", "color": "#FFB020",
+      "lessons": [
+        { "id": "i1", "emoji": "✈️", "title": "At the airport", "titleId": "Di bandara", "words": ["passport", "ticket", "boarding pass", "gate", "delayed", "check in"] },
+        { "id": "i2", "emoji": "🏨", "title": "At the hotel", "titleId": "Di hotel", "words": ["reservation", "single room", "key card", "check out", "breakfast included"] },
+        { "id": "i3", "emoji": "🛍️", "title": "Shopping", "titleId": "Belanja", "words": ["discount", "size", "try on", "cash", "card", "receipt"] },
+        { "id": "i4", "emoji": "🧭", "title": "Asking for directions", "titleId": "Bertanya arah", "words": ["turn left", "turn right", "go straight", "next to", "across from", "far"] },
+        { "id": "i5", "emoji": "📞", "title": "Phone calls", "titleId": "Telepon", "words": ["speaking", "hold on", "call back", "leave a message", "available"] },
+        { "id": "i6", "emoji": "🏥", "title": "At the doctor", "titleId": "Di dokter", "words": ["headache", "fever", "medicine", "appointment", "it hurts"] },
+        { "id": "i7", "emoji": "💼", "title": "Work & jobs", "titleId": "Pekerjaan", "words": ["job", "colleague", "boss", "meeting", "deadline", "salary"] },
+        { "id": "i8", "emoji": "🍽️", "title": "At a restaurant", "titleId": "Di restoran", "words": ["menu", "order", "the bill", "recommend", "spicy", "vegetarian"] },
+        { "id": "i9", "emoji": "📸", "title": "Talking about the past", "titleId": "Bercerita masa lalu", "words": ["went", "saw", "ate", "visited", "last week", "ago"] },
+        { "id": "i10", "emoji": "🔮", "title": "Future plans", "titleId": "Rencana masa depan", "words": ["will", "going to", "plan", "next year", "hope", "dream"] }
+      ]
+    },
+    {
+      "id": "advanced", "title": "Advanced", "titleId": "Mahir", "cefr": "B2", "color": "#FF6B4A",
+      "lessons": [
+        { "id": "a1", "emoji": "🎤", "title": "Job interview", "titleId": "Wawancara kerja", "words": ["strengths", "weaknesses", "experience", "achievement", "teamwork"] },
+        { "id": "a2", "emoji": "🗣️", "title": "Giving opinions", "titleId": "Memberi pendapat", "words": ["in my opinion", "I agree", "I disagree", "on the other hand", "however"] },
+        { "id": "a3", "emoji": "📊", "title": "Meetings", "titleId": "Rapat", "words": ["agenda", "propose", "follow up", "action items", "deadline"] },
+        { "id": "a4", "emoji": "📧", "title": "Professional emails", "titleId": "Email profesional", "words": ["regarding", "attached", "I look forward to", "kind regards", "please find"] },
+        { "id": "a5", "emoji": "🤝", "title": "Negotiation", "titleId": "Negosiasi", "words": ["offer", "compromise", "deal", "budget", "terms"] },
+        { "id": "a6", "emoji": "🎯", "title": "Presentations", "titleId": "Presentasi", "words": ["today I'll talk about", "firstly", "moving on", "in conclusion", "any questions"] },
+        { "id": "a7", "emoji": "💡", "title": "Solving problems", "titleId": "Memecahkan masalah", "words": ["issue", "solution", "suggest", "alternative", "outcome"] },
+        { "id": "a8", "emoji": "🌍", "title": "Small talk & culture", "titleId": "Basa-basi & budaya", "words": ["how was your weekend", "tradition", "festival", "by the way", "sounds great"] },
+        { "id": "a9", "emoji": "📖", "title": "Telling stories", "titleId": "Bercerita", "words": ["suddenly", "at first", "eventually", "it turned out", "in the end"] },
+        { "id": "a10", "emoji": "🗽", "title": "Idioms & natural English", "titleId": "Idiom & bahasa alami", "words": ["break the ice", "piece of cake", "under the weather", "hit the road", "on the same page"] }
+      ]
+    }
+  ]
+}
