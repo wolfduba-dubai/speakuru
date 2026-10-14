@@ -74,21 +74,40 @@ const languages = [
   { code: "th", flag: "th", native: "ภาษาไทย", en: "Thai" },
   { code: "tr", flag: "tr", native: "Türkçe", en: "Turkish" },
 ];
-$("#langList").innerHTML = languages.map((l, i) => `
+// languages you can learn (only English for now)
+const learnable = [
+  { code: "en", flag: "gb", native: "English", en: "Bahasa Inggris", ready: true },
+  { code: "id", flag: "id", native: "Bahasa Indonesia", en: "Indonesian" },
+  { code: "ja", flag: "jp", native: "日本語", en: "Japanese" },
+  { code: "ar", flag: "sa", native: "العربية", en: "Arabic" },
+  { code: "es", flag: "es", native: "Español", en: "Spanish" },
+  { code: "fr", flag: "fr", native: "Français", en: "French" },
+  { code: "ko", flag: "kr", native: "한국어", en: "Korean" },
+];
+
+function renderLangs(el, list) {
+  el.innerHTML = list.map((l, i) => `
   <button class="lang ${l.ready ? "on" : "soon"}" data-code="${l.code}" style="animation-delay:${i * 45}ms" ${l.ready ? "" : 'aria-disabled="true"'}>
     <span class="fi fi-${l.flag}"></span>
     <span class="names"><b>${l.native}</b><small>${l.en}</small></span>
     <span class="tag">${l.ready ? "Pilih" : "Coming soon"}</span>
   </button>`).join("");
+}
+renderLangs($("#langList"), languages);
+renderLangs($("#learnList"), learnable);
 
-$("#langList").addEventListener("click", (e) => {
-  const btn = e.target.closest(".lang");
-  if (!btn) return;
-  if (btn.classList.contains("soon")) return toast("Coming soon 🚀");
-  unlockVoice();
-  store.set("lang", btn.dataset.code);
-  go("chat");
-});
+function onPick(el, key, next) {
+  el.addEventListener("click", (e) => {
+    const btn = e.target.closest(".lang");
+    if (!btn) return;
+    if (btn.classList.contains("soon")) return toast("Coming soon 🚀");
+    unlockVoice();
+    store.set(key, btn.dataset.code);
+    go(next);
+  });
+}
+onPick($("#langList"), "lang", "learn");    // 1. language you speak
+onPick($("#learnList"), "learnLang", "chat"); // 2. language you want to learn
 
 /* ================= VOICE: Maya speaks ================= */
 let muted = store.get("muted") === true;
