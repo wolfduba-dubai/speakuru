@@ -20,8 +20,8 @@ worker = r'''// Speakuru API — Cloudflare Worker (Maya's brain).
 const PROMPTS = __PROMPTS__;
 const LESSONS = __LESSONS__;
 
-const TAP_ONLY = "TAP-ONLY MODE: the student cannot speak or type right now. Never use SPEAK. " +
-  "Every message must end with a CHOICES, QUIZ, BUILD or LISTEN tag so they can answer by tapping. " +
+const TAP_ONLY = "TAP-ONLY MODE: the student cannot speak or type right now. Never use SPEAK or ANSWER. " +
+  "Every message must end with a CHOICES, QUIZ, LISTEN, BUILD or DIALOGUE tag so they can answer by tapping. " +
   "In role-plays, always give CHOICES.";
 
 // Websites allowed to use this API

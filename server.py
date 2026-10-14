@@ -18,8 +18,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 5500
 MODES = ("onboarding", "lesson", "free")
 
-TAP_ONLY = ("TAP-ONLY MODE: the student cannot speak or type right now. Never use SPEAK. "
-            "Every message must end with a CHOICES, QUIZ, BUILD or LISTEN tag so they can answer by tapping. "
+TAP_ONLY = ("TAP-ONLY MODE: the student cannot speak or type right now. Never use SPEAK or ANSWER. "
+            "Every message must end with a CHOICES, QUIZ, LISTEN, BUILD or DIALOGUE tag so they can answer by tapping. "
             "In role-plays, always give CHOICES.")
 
 

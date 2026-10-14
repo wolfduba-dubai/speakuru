@@ -25,6 +25,7 @@ body {
 }
 button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
 img { display: block; max-width: 100%; }
+[hidden] { display: none !important; }
 
 /* ---------- soft moving background ---------- */
 .blobs { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
@@ -286,8 +287,8 @@ h1 {
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-/* Indonesian help line under Maya's English */
-.msg.maya .id { display: block; font-size: 13.5px; color: var(--navy-soft); font-style: italic; margin: 3px 0 5px; opacity: .85; }
+/* English words/sentences inside Maya's Indonesian */
+.msg .en { color: var(--coral-dark); font-weight: 700; }
 
 /* "thinking" dots */
 .msg.thinking { display: flex; gap: 5px; padding: 16px 18px; }
@@ -422,6 +423,26 @@ h1 {
 }
 .ex-mic.on { background: var(--navy); box-shadow: 0 5px 0 #0d1830; }
 .ex-skip { flex: 1; border: 2px solid var(--line); border-radius: 14px; font-weight: 600; font-size: 13px; color: var(--navy-soft); }
+
+/* listening / speaking extras */
+.ex-plays { display: flex; gap: 10px; justify-content: center; align-items: flex-end; }
+.ex-play.slow { width: 52px; height: 52px; font-size: 24px; border-radius: 16px; background: #fff; border: 2px solid var(--line); box-shadow: 0 4px 0 var(--line); }
+.ex-show { align-self: center; font-size: 13px; font-weight: 600; color: var(--navy-soft); border: 2px dashed var(--line); border-radius: 999px; padding: 6px 14px; }
+.ex-hint, .ex-reveal { text-align: center; color: var(--navy-soft); font-weight: 600; }
+.ex-lines { background: var(--cream); border-radius: 14px; padding: 10px 14px; font-size: 15px; line-height: 1.6; }
+.ex-q.en-q { color: var(--coral-dark); text-align: center; }
+.ex-targets { display: grid; gap: 8px; }
+.ex-target {
+  font-family: var(--font-head); font-weight: 600; font-size: 21px; text-align: center; line-height: 1.35;
+  padding: 8px 10px; border-radius: 14px; background: var(--cream);
+}
+.answer .ex-target { font-size: 17px; }
+.ex-target.dim { opacity: .4; }
+.ex-target span.ok { color: #12805A; }
+.ex-target span.miss { color: #D92D20; text-decoration: underline wavy; text-underline-offset: 4px; }
+.ex-retry { flex: 2; background: var(--coral); color: #fff; border-radius: 14px; padding: 13px; font-weight: 700; box-shadow: 0 5px 0 var(--coral-dark); }
+.ex-next { flex: 1; border: 2px solid var(--line); border-radius: 14px; font-weight: 600; }
+.answered .ex-after { display: none; }
 
 .msg.finish { align-items: center; text-align: center; }
 .msg.finish b { font-family: var(--font-head); font-size: 24px; font-weight: 600; }

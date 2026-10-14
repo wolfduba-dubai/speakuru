@@ -244,15 +244,26 @@ function unlockVoice() {
   unlocked = true;
 }
 
-// Say one English word/sentence (for LISTEN / SPEAK exercises)
-function sayEnglish(text) {
-  if (!synth) return;
-  synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "en-US";
-  if (voiceEn) u.voice = voiceEn;
-  u.rate = 0.85;
-  synth.speak(u);
+// Say English for exercises. slow = 🐢 button. voice2 = the second person in a dialogue.
+function voiceEn2() {
+  const vs = synth ? synth.getVoices() : [];
+  return vs.find((v) => /google uk english male/i.test(v.name))
+      || vs.find((v) => v.lang.startsWith("en") && /male|david|guy|daniel/i.test(v.name) && v !== voiceEn)
+      || vs.find((v) => v.lang.startsWith("en") && v !== voiceEn) || voiceEn;
+}
+function sayEnglish(text, { slow = false, voice2 = false, queue = false } = {}) {
+  return new Promise((resolve) => {
+    if (!synth) return resolve();
+    if (!queue) synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    const v = voice2 ? voiceEn2() : voiceEn;
+    if (v) u.voice = v;
+    u.rate = slow ? 0.55 : 0.88;
+    if (voice2) u.pitch = 0.85;
+    u.onend = u.onerror = () => resolve();
+    synth.speak(u);
+  });
 }
 
 /* ---------- "speaking" animation: rings + sound bars around Maya's photo ---------- */
@@ -268,17 +279,21 @@ function setStatus(text, cls = "") {
 
 const stripEmoji = (t) => t.replace(/[\p{Extended_Pictographic}‍️]/gu, "").trim();
 
-/* English is the main text; Indonesian help comes inside ((...)).
-   "Hi! ((Halo!)) How are you?" -> [{t:"Hi! ", en:true}, {t:"Halo!", en:false}, {t:" How are you?", en:true}] */
+/* Maya talks Indonesian; English (what the student learns) comes inside {{...}}.
+   "Kata {{mother}} artinya ibu" -> [{t:"Kata ", en:false}, {t:"mother", en:true}, {t:" artinya ibu", en:false}] */
 function segments(text) {
-  return text.replace(/\{\{|\}\}/g, "").split(/(\(\([\s\S]*?\)\))/).filter((p) => p.trim()).map((p) =>
-    p.startsWith("((") ? { t: " " + p.slice(2, -2).trim() + " ", en: false } : { t: p, en: true });
+  return text.replace(/\(\(|\)\)/g, "").split(/(\{\{[\s\S]*?\}\})/).filter((p) => p.trim()).map((p) =>
+    p.startsWith("{{") ? { t: p.slice(2, -2), en: true } : { t: p, en: false });
 }
 
+function segNode(s) {
+  const n = document.createElement(s.en ? "b" : "span");
+  if (s.en) n.className = "en";
+  return n;
+}
 function fillBubble(bubble, segs) {
   segs.forEach((s) => {
-    const n = document.createElement(s.en ? "span" : "small");
-    if (!s.en) n.className = "id";
+    const n = segNode(s);
     n.textContent = s.t;
     bubble.appendChild(n);
   });
@@ -310,8 +325,7 @@ function mayaSay(text) {
     const type = () => {
       if (my !== sayToken) { bubble.textContent = ""; fillBubble(bubble, segs); bubble.classList.remove("typing"); resolve(); return; }
       if (!node) {
-        node = document.createElement(segs[si].en ? "span" : "small");
-        if (!segs[si].en) node.className = "id";
+        node = segNode(segs[si]);
         bubble.appendChild(node);
       }
       node.textContent = segs[si].t.slice(0, ++ci);
@@ -331,7 +345,7 @@ function mayaSay(text) {
         u.lang = s.en ? "en-US" : "id-ID";
         const v = s.en ? voiceEn : voiceId;
         if (v) u.voice = v;
-        u.rate = s.en ? 0.95 : 1;      // English a bit slower, easier to follow
+        u.rate = s.en ? 0.9 : 1.05;    // English a bit slower, easier to follow
         u.pitch = 1.1;
         if (i === parts.length - 1) u.onend = u.onerror = () => { speechDone = true; finish(); };
         synth.speak(u);
@@ -393,6 +407,8 @@ async function openChat(mode, lessonId = null) {
   $("#btnExit").hidden = mode === "onboarding";
   $(".screen-chat").classList.toggle("tap-only", tapOnly && mode !== "onboarding");
   $(".screen-chat").classList.toggle("compact", mode !== "onboarding");   // smaller Maya → more room for exercises
+  micLang = mode === "onboarding" ? "id-ID" : "en-US";                    // lessons: the mic listens for English
+  showMicLang();
   go("chat");
 
   // show the last few messages again
@@ -402,7 +418,7 @@ async function openChat(mode, lessonId = null) {
   });
 
   if (mode === "onboarding" && !session.log.length) {
-    const hello = "Hi! I'm Maya, your personal English teacher 😊 ((Halo! Aku Maya, guru bahasa Inggris pribadimu.)) What's your name? ((Siapa namamu?))";
+    const hello = "Halo! Aku Maya, guru bahasa Inggris pribadimu 😊 Dalam bahasa Inggris aku bilang: {{Hi! I'm Maya.}} Sekarang kamu, siapa namamu?";
     session.log.push({ role: "assistant", content: hello });
     saveSession();
     setTimeout(() => mayaSay(hello), 400);
@@ -413,7 +429,7 @@ async function openChat(mode, lessonId = null) {
     session.log.push({ role: "user", content: mode === "lesson" ? "[START LESSON]" : "[START FREE TALK]", hide: true });
     askMaya();
   } else {
-    setTimeout(() => mayaSay(`Welcome back${profile.name ? ", " + profile.name : ""}! 😊 Let's keep talking.`), 400);
+    setTimeout(() => mayaSay(`{{Welcome back${profile.name ? ", " + profile.name : ""}!}} 😊 Yuk kita lanjut ngobrol.`), 400);
   }
 }
 
@@ -447,10 +463,10 @@ async function askMaya() {
     });
     const data = await r.json();
     if (data.error === "no_key") reply = "Ups, kunci DeepSeek belum dipasang 🔑";
-    else if (!r.ok) reply = "Sorry, I have a connection problem. ((Maaf, koneksiku lagi bermasalah.)) Please try again 🙏";
+    else if (!r.ok) reply = "Maaf, koneksiku lagi bermasalah. Coba kirim lagi ya 🙏";
     else reply = data.reply;
   } catch {
-    reply = "Sorry, I can't connect. ((Maaf, aku tidak bisa terhubung. Cek internetmu ya.)) 🙏";
+    reply = "Maaf, aku tidak bisa terhubung. Cek internetmu ya 🙏";
   }
   dots.remove();
   busy = false;
@@ -467,10 +483,12 @@ async function askMaya() {
   let interactive = false;
   for (const t of tags) {
     if (t.type === "CHOICES" && Array.isArray(t.json)) { showChoices(t.json); interactive = true; }
-    else if (t.type === "QUIZ" && t.json) { quizCard(t.json, false); interactive = true; }
-    else if (t.type === "LISTEN" && t.json) { quizCard(t.json, true); interactive = true; }
+    else if (t.type === "QUIZ" && t.json) { quizCard(t.json); interactive = true; }
+    else if (t.type === "LISTEN" && t.json) { listenCard(t.json); interactive = true; }
+    else if (t.type === "DIALOGUE" && t.json) { dialogueCard(t.json); interactive = true; }
     else if (t.type === "BUILD" && t.json) { buildCard(t.json); interactive = true; }
     else if (t.type === "SPEAK" && t.json) { speakCard(t.json); interactive = true; }
+    else if (t.type === "ANSWER" && t.json) { answerCard(t.json); interactive = true; }
     else if (t.type === "LESSON_DONE") { lessonDone(); interactive = true; }
   }
   if (session.mode === "onboarding" && !hadLevel && profile.level) { showLessonsButton(); interactive = true; }
@@ -501,111 +519,198 @@ function card(cls, html) {
   scrollDown();
   return d;
 }
+const words = (t) => String(t).toLowerCase().replace(/[^\p{L}\p{N}' ]/gu, " ").split(/\s+/).filter(Boolean);
+const playBtns = `<div class="ex-plays"><button class="ex-play" aria-label="Play">🔊</button><button class="ex-play slow" aria-label="Play slowly">🐢</button></div>`;
 
-// QUIZ (pick the meaning) and LISTEN (hear → pick)
-function quizCard(q, listen) {
-  const options = Array.isArray(q.options) ? q.options.map(String) : [];
-  const answer = Number.isInteger(q.answer) ? q.answer : 0;
-  if (!options.length) return;
-  const c = card(listen ? "listen" : "quiz", `
-    <div class="ex-label">${listen ? "🔊 Listen & choose" : "👆 Choose the answer"}</div>
-    ${listen ? '<button class="ex-play" aria-label="Play">🔊</button>' : `<div class="ex-q">${esc(q.q || "")}</div>`}
-    <div class="ex-options">${options.map((o, i) => `<button data-i="${i}">${esc(o)}</button>`).join("")}</div>`);
-  if (listen) {
-    const play = () => sayEnglish(String(q.say || options[answer]));
-    c.querySelector(".ex-play").addEventListener("click", play);
-    setTimeout(play, 300);
-  }
+// tap one option → right/wrong → send result to Maya
+function wireOptions(c, options, answer, describe) {
   c.querySelectorAll(".ex-options button").forEach((b) => b.addEventListener("click", () => {
     if (c.classList.contains("answered") || busy) return;
     c.classList.add("answered");
+    if (synth) synth.cancel();
     const i = +b.dataset.i, ok = i === answer;
     b.classList.add(ok ? "right" : "wrong");
     c.querySelector(`[data-i="${answer}"]`).classList.add("right");
     if (ok) addXp(10);
-    const what = listen ? `Listening ("${q.say}")` : `Quiz "${q.q}"`;
+    c.querySelectorAll(".reveal").forEach((r) => (r.hidden = false));
     setTimeout(() => sendUser(
-      `[RESULT] ${what}: student chose "${options[i]}" — ${ok ? "correct" : `wrong (right answer: "${options[answer]}")`}.`,
+      `[RESULT] ${describe}: student chose "${options[i]}" — ${ok ? "correct" : `wrong (right answer: "${options[answer]}")`}.`,
       `${options[i]} ${ok ? "✅" : "❌"}`), 700);
   }));
 }
+const optionsHtml = (options) => `<div class="ex-options">${options.map((o, i) => `<button data-i="${i}">${esc(o)}</button>`).join("")}</div>`;
 
-// BUILD (put word tiles in order)
+// QUIZ (choose the meaning)
+function quizCard(q) {
+  const options = Array.isArray(q.options) ? q.options.map(String) : [];
+  const answer = Number.isInteger(q.answer) ? q.answer : 0;
+  if (!options.length) return;
+  const c = card("quiz", `<div class="ex-label">👆 Pilih jawaban</div><div class="ex-q"></div>${optionsHtml(options)}`);
+  fillBubble(c.querySelector(".ex-q"), segments(String(q.q || "")));
+  wireOptions(c, options, answer, `Quiz "${q.q}"`);
+}
+
+// LISTEN (hear → choose)
+function listenCard(q) {
+  const options = Array.isArray(q.options) ? q.options.map(String) : [];
+  const answer = Number.isInteger(q.answer) ? q.answer : 0;
+  const say = String(q.say || options[answer] || "");
+  if (!options.length || !say) return;
+  const c = card("listen", `<div class="ex-label">🎧 Dengarkan & pilih</div>${playBtns}${optionsHtml(options)}
+    <div class="ex-reveal reveal" hidden>🔊 ${esc(say)}</div>`);
+  c.querySelector(".ex-play").addEventListener("click", () => sayEnglish(say));
+  c.querySelector(".ex-play.slow").addEventListener("click", () => sayEnglish(say, { slow: true }));
+  setTimeout(() => sayEnglish(say), 300);
+  wireOptions(c, options, answer, `Listening ("${say}")`);
+}
+
+// DIALOGUE (hear 2-4 lines with 2 voices → answer a question)
+function dialogueCard(q) {
+  const lines = (Array.isArray(q.lines) ? q.lines : []).filter((l) => l && l.text).slice(0, 5);
+  const options = Array.isArray(q.options) ? q.options.map(String) : [];
+  const answer = Number.isInteger(q.answer) ? q.answer : 0;
+  if (!lines.length || !options.length) return;
+  const whos = [...new Set(lines.map((l) => l.who))];
+  const c = card("dialogue", `<div class="ex-label">🎧 Dengarkan percakapan</div>${playBtns}
+    <div class="ex-lines reveal" hidden>${lines.map((l) => `<p><b>${esc(l.who || "")}:</b> ${esc(l.text)}</p>`).join("")}</div>
+    <button class="ex-show">👁️ Lihat teks</button>
+    <div class="ex-q">${esc(q.q || "")}</div>${optionsHtml(options)}`);
+  const play = async (slow) => {
+    if (synth) synth.cancel();
+    for (const l of lines) await sayEnglish(l.text, { slow, voice2: whos.indexOf(l.who) === 1, queue: true });
+  };
+  c.querySelector(".ex-play").addEventListener("click", () => play(false));
+  c.querySelector(".ex-play.slow").addEventListener("click", () => play(true));
+  c.querySelector(".ex-show").addEventListener("click", (e) => { c.querySelector(".ex-lines").hidden = false; e.target.remove(); });
+  setTimeout(() => play(false), 300);
+  wireOptions(c, options, answer, `Dialogue question "${q.q}"`);
+}
+
+// BUILD (hear the sentence → put word tiles in order)
 function buildCard(q) {
-  const clean = (t) => String(t).toLowerCase().replace(/[^\p{L}\p{N}' ]/gu, "").replace(/\s+/g, " ").trim();
-  const words = String(q.answer || "").split(/\s+/).filter(Boolean);
-  if (!words.length) return;
-  const tiles = [...words, ...(Array.isArray(q.extra) ? q.extra.map(String) : [])]
+  const clean = (t) => words(t).join(" ");
+  const target = String(q.say || q.answer || "");
+  const parts = target.split(/\s+/).filter(Boolean);
+  if (!parts.length) return;
+  const hint = q.hint || q.prompt || "";
+  const tiles = [...parts, ...(Array.isArray(q.extra) ? q.extra.map(String) : [])]
     .map((w, i) => ({ w: w.replace(/[.,!?]$/, ""), i })).sort(() => Math.random() - 0.5);
   const c = card("build", `
-    <div class="ex-label">🧩 Build the sentence</div>
-    <div class="ex-q">🇮🇩 ${esc(q.prompt || "")}</div>
+    <div class="ex-label">🧩 Dengarkan & susun</div>${playBtns}
+    ${hint ? `<button class="ex-show">💡 Lihat arti</button><div class="ex-hint" hidden>🇮🇩 ${esc(hint)}</div>` : ""}
     <div class="ex-answer"></div>
     <div class="ex-bank">${tiles.map((t) => `<button data-i="${t.i}">${esc(t.w)}</button>`).join("")}</div>
-    <button class="ex-check" disabled>Check ✓</button>`);
+    <button class="ex-check" disabled>Cek ✓</button>`);
+  c.querySelector(".ex-play").addEventListener("click", () => sayEnglish(target));
+  c.querySelector(".ex-play.slow").addEventListener("click", () => sayEnglish(target, { slow: true }));
+  const showBtn = c.querySelector(".ex-show");
+  if (showBtn) showBtn.addEventListener("click", () => { c.querySelector(".ex-hint").hidden = false; showBtn.remove(); });
+  setTimeout(() => sayEnglish(target), 300);
   const ans = c.querySelector(".ex-answer"), bank = c.querySelector(".ex-bank"), check = c.querySelector(".ex-check");
-  const update = () => { check.disabled = !ans.children.length; };
   c.addEventListener("click", (e) => {
     const t = e.target.closest(".ex-answer button, .ex-bank button");
     if (!t || c.classList.contains("answered")) return;
     (t.parentElement === bank ? ans : bank).appendChild(t);
-    update();
+    check.disabled = !ans.children.length;
   });
   check.addEventListener("click", () => {
     if (c.classList.contains("answered") || busy) return;
     c.classList.add("answered");
     const said = [...ans.children].map((b) => b.textContent).join(" ");
-    const ok = clean(said) === clean(q.answer);
+    const ok = clean(said) === clean(target);
     ans.classList.add(ok ? "right" : "wrong");
-    if (!ok) ans.insertAdjacentHTML("afterend", `<div class="ex-correct">✅ ${esc(q.answer)}</div>`);
+    if (!ok) ans.insertAdjacentHTML("afterend", `<div class="ex-correct">✅ ${esc(target)}</div>`);
     if (ok) addXp(15);
     setTimeout(() => sendUser(
-      `[RESULT] Build "${q.prompt}": student built "${said}" — ${ok ? "correct" : `wrong (right answer: "${q.answer}")`}.`,
+      `[RESULT] Listen & build "${target}": student built "${said}" — ${ok ? "correct" : "wrong"}.`,
       `${said} ${ok ? "✅" : "❌"}`), 700);
   });
 }
 
-// SPEAK (say it into the mic)
-function speakCard(q) {
-  const target = String(q.text || "");
-  if (!target) return;
-  const c = card("speak", `
-    <div class="ex-label">🎙️ Say it out loud</div>
-    <div class="ex-q">${esc(target)} <button class="ex-play small" aria-label="Listen">🔊</button></div>
+/* SPEAK (repeat after me) and ANSWER (answer by speaking).
+   Each target word turns green (heard) or red (not heard well). Up to 3 tries. */
+function micCard(cls, label, { question, targets }) {
+  const c = card(cls, `
+    <div class="ex-label">${label}</div>
+    ${question ? `<div class="ex-q en-q">${esc(question)}</div>` : ""}
+    ${playBtns}
+    <div class="ex-targets">${targets.map((t, i) => `<div class="ex-target" data-t="${i}">${words(t).length ? t.split(/\s+/).map((w) => `<span>${esc(w)}</span>`).join(" ") : ""}</div>`).join("")}</div>
     <div class="ex-heard"></div>
     <div class="ex-row">
-      <button class="ex-mic">🎙️ Tap & speak</button>
-      <button class="ex-skip">⏭️ Can't speak now</button>
+      <button class="ex-mic">🎙️ Tekan & bicara</button>
+      <button class="ex-skip">⏭️ Tidak bisa bicara</button>
+    </div>
+    <div class="ex-row ex-after" hidden>
+      <button class="ex-retry">🔁 Coba lagi</button>
+      <button class="ex-next">Lanjut ▶️</button>
     </div>`);
-  c.querySelector(".ex-play").addEventListener("click", () => sayEnglish(target));
-  c.querySelector(".ex-skip").addEventListener("click", () => {
-    if (c.classList.contains("answered") || busy) return;
+  const listenText = question || targets[0];
+  c.querySelector(".ex-play").addEventListener("click", () => sayEnglish(listenText));
+  c.querySelector(".ex-play.slow").addEventListener("click", () => sayEnglish(listenText, { slow: true }));
+  setTimeout(() => sayEnglish(listenText), 300);
+
+  let tries = 0, last = null;
+  const finish = (msg, show) => {
+    if (c.classList.contains("answered")) return;
     c.classList.add("answered");
-    sendUser("[RESULT] Student skipped the speaking exercise (can't speak now).", "⏭️ Skipped");
+    sendUser(msg, show);
+  };
+  c.querySelector(".ex-skip").addEventListener("click", () => {
+    if (busy) return;
+    finish("[RESULT] Student skipped the speaking exercise (can't speak now).", "⏭️ Dilewati");
   });
-  c.querySelector(".ex-mic").addEventListener("click", () => {
+  c.querySelector(".ex-next").addEventListener("click", () => last && finish(last.msg, last.show));
+  const start = () => {
     if (c.classList.contains("answered") || busy) return;
     if (!SR) return toast("Mic belum didukung di browser ini. Coba Google Chrome 🙏");
     const btn = c.querySelector(".ex-mic");
+    c.querySelector(".ex-after").hidden = true;
+    c.querySelector(".ex-row").hidden = false;
     listen("en-US", {
-      onStart: () => { btn.classList.add("on"); btn.textContent = "🎙️ Listening…"; },
+      onStart: () => { btn.classList.add("on"); btn.textContent = "🎙️ Mendengarkan…"; },
       onText: (t) => { c.querySelector(".ex-heard").textContent = "“" + t + "”"; },
       onEnd: (heard) => {
-        btn.classList.remove("on"); btn.textContent = "🎙️ Try again";
+        btn.classList.remove("on"); btn.textContent = "🎙️ Tekan & bicara";
         if (!heard) return;
-        const words = (t) => t.toLowerCase().replace(/[^\p{L}\p{N}' ]/gu, "").split(/\s+/).filter(Boolean);
-        const want = words(target), got = words(heard);
-        const score = want.filter((w) => got.includes(w)).length / want.length;
-        const ok = score >= 0.7;
-        c.classList.add("answered");
-        c.querySelector(".ex-heard").classList.add(ok ? "right" : "wrong");
-        if (ok) addXp(15);
-        setTimeout(() => sendUser(
-          `[RESULT] Speaking "${target}": student said "${heard}" — ${ok ? "good" : "needs practice"} (${Math.round(score * 100)}% match).`,
-          `🎙️ ${heard} ${ok ? "✅" : "🔁"}`), 600);
+        tries++;
+        const got = words(heard);
+        // pick the suggested answer closest to what was said
+        let best = 0, bestScore = -1;
+        targets.forEach((t, i) => {
+          const w = words(t), s = w.filter((x) => got.includes(x)).length / (w.length || 1);
+          if (s > bestScore) { bestScore = s; best = i; }
+        });
+        c.querySelectorAll(".ex-target").forEach((el, i) => {
+          el.classList.toggle("dim", i !== best);
+          el.querySelectorAll("span").forEach((sp) => {
+            if (i !== best) return sp.className = "";
+            sp.className = words(sp.textContent).every((x) => got.includes(x)) ? "ok" : "miss";
+          });
+        });
+        const missed = [...c.querySelectorAll(`.ex-target[data-t="${best}"] .miss`)].map((s) => s.textContent);
+        const ok = bestScore >= 0.7;
+        const target = targets[best];
+        last = {
+          msg: `[RESULT] ${question ? `Answer by speaking to "${question}"` : `Repeat "${target}"`}: student said "${heard}" — ${ok ? "good" : "needs practice"} (${Math.round(bestScore * 100)}% of words heard${missed.length ? `; not heard well: ${missed.join(", ")}` : ""}).`,
+          show: `🎙️ ${heard} ${ok ? "✅" : "🔁"}`,
+        };
+        if (ok) { addXp(15); return setTimeout(() => finish(last.msg, last.show), 900); }
+        if (tries >= 3) return setTimeout(() => finish(last.msg, last.show), 900);
+        c.querySelector(".ex-row").hidden = true;
+        c.querySelector(".ex-after").hidden = false;
       },
     });
-  });
+  };
+  c.querySelector(".ex-mic").addEventListener("click", start);
+  c.querySelector(".ex-retry").addEventListener("click", start);
+}
+function speakCard(q) {
+  const text = String(q.text || "");
+  if (text) micCard("speak", "🗣️ Ulangi setelah aku", { targets: [text] });
+}
+function answerCard(q) {
+  const options = (Array.isArray(q.options) ? q.options : []).map(String).filter(Boolean).slice(0, 3);
+  if (q.q && options.length) micCard("answer", "💬 Jawab dengan bicara", { question: String(q.q), targets: options });
 }
 
 function lessonDone() {
@@ -615,18 +720,18 @@ function lessonDone() {
   addXp(50);
   const c = card("finish", `
     <div class="finish-emoji">🎉</div>
-    <b>Lesson complete!</b>
+    <b>Pelajaran selesai!</b>
     <small>+50 XP · 🔥 ${streakNow()} day streak</small>
-    <button class="ex-check">Back to lessons ▶️</button>`);
+    <button class="ex-check">Kembali ke pelajaran ▶️</button>`);
   c.querySelector("button").addEventListener("click", () => go("map"));
 }
 
 function showLessonsButton() {
   const c = card("finish", `
     <div class="finish-emoji">🚀</div>
-    <b>Your lessons are ready!</b>
+    <b>Pelajaranmu sudah siap!</b>
     <small>Level: ${esc(profile.level)}</small>
-    <button class="ex-check">See my lessons ▶️</button>`);
+    <button class="ex-check">Lihat pelajaranku ▶️</button>`);
   c.querySelector("button").addEventListener("click", () => { mapLevel = null; go("map"); });
 }
 
