@@ -1,0 +1,9 @@
+# secrets — never upload
+.env
+api deep seek.txt
+*.txt
+!prompt.txt
+
+# local only
+.claude/
+/*.jpg

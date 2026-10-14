@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" translate="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="google" content="notranslate">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Speakuru — Your AI English Teacher</title>
+  <meta name="description" content="Belajar bahasa Inggris dengan ngobrol bersama Maya, guru AI pribadimu. Bicara atau ketik, kapan saja.">
+  <meta name="theme-color" content="#FFF7EE">
+  <link rel="icon" href="assets/logo.webp">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="blobs" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <!-- ========== SCREEN 1: HOME ========== -->
+  <main class="screen screen-home is-active" id="home">
+    <header class="home-top">
+    <a class="brand" href="#" data-go="home" aria-label="Speakuru home">
+      <img src="assets/icon.webp" alt=""><span>Speak<em>uru</em></span>
+    </a>
+    </header>
+    <div class="home-text">
+
+      <div class="greet" aria-live="polite">
+        <div class="greet-word" id="greetWord">Hello</div>
+        <div class="greet-lang" id="greetLang">English</div>
+      </div>
+
+      <div class="tagline" id="tagline">
+        <h1 id="tagTitle">Your personal <span class="hl">AI English</span> teacher.</h1>
+        <p class="sub" id="tagSub">Speak or type, anytime, 24/7.</p>
+      </div>
+
+      <button class="btn-start" id="btnStart">
+        Start
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <ul class="chips">
+        <li>🎙️ Speak</li>
+        <li>⌨️ Type</li>
+        <li>🧑‍🏫 Your level</li>
+      </ul>
+    </div>
+
+    <div class="home-maya">
+      <div class="maya-ring">
+        <img src="assets/maya-real.webp" alt="Maya, your AI teacher" width="720" height="720">
+        <span class="online"></span>
+      </div>
+      <div class="bubble-float">Hi! I'm <b>Maya</b> 👋</div>
+    </div>
+  </main>
+
+  <!-- ========== SCREEN 2: LANGUAGE ========== -->
+  <main class="screen screen-lang" id="language">
+    <header class="topbar">
+      <a class="brand" href="#" data-go="home" aria-label="Speakuru home">
+      <img src="assets/icon.webp" alt=""><span>Speak<em>uru</em></span>
+    </a>
+    </header>
+
+    <div class="lang-head">
+      <h2>Which language do you speak?</h2>
+      <p>Bahasa apa yang kamu gunakan? Maya akan menjelaskan dalam bahasamu.</p>
+    </div>
+
+    <div class="lang-list" id="langList"></div>
+  </main>
+
+  <!-- ========== SCREEN 3: CHAT WITH MAYA ========== -->
+  <main class="screen screen-chat" id="chat">
+    <header class="topbar">
+      <a class="brand brand-icon" href="#" data-go="home" aria-label="Speakuru home">
+      <img src="assets/icon.webp" alt=""><span>Speak<em>uru</em></span>
+    </a>
+      <div class="who">
+        <b>Maya</b>
+        <small id="status">online</small>
+      </div>
+      <button class="icon-btn" id="btnMute" aria-label="Mute Maya" aria-pressed="false">
+        <svg class="ic-on" viewBox="0 0 24 24" width="22" height="22"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg class="ic-off" viewBox="0 0 24 24" width="22" height="22"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+
+    <div class="stage">
+      <div class="maya-wrap" id="mayaFace">
+        <span class="wave"></span><span class="wave"></span><span class="wave"></span>
+        <div class="maya-face"><img src="assets/maya-real.webp" alt="Maya" width="720" height="720"></div>
+        <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      </div>
+    </div>
+
+    <div class="messages" id="messages" aria-live="polite"></div>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <button type="button" class="mic-lang" id="btnMicLang" aria-label="Mic language">ID</button>
+      <input id="textIn" type="text" placeholder="Ketik di sini…" enterkeyhint="send">
+      <button type="submit" class="send" aria-label="Send">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 12l16-8-6 16-2.5-6.5L4 12z" fill="currentColor"/></svg>
+      </button>
+      <button type="button" class="mic" id="btnMic" aria-label="Speak">
+        <svg viewBox="0 0 24 24" width="26" height="26"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </form>
+  </main>
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
